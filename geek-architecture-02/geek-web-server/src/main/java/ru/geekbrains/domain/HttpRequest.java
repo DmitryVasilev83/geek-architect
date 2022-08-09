@@ -12,14 +12,25 @@ public class HttpRequest {
 
     private String body;
 
+    private String httpVers;
+
     public HttpRequest() {
     }
 
-    public HttpRequest(String method, String path, Map<String, String> headers, String body) {
+    public String getHttpVers() {
+        return httpVers;
+    }
+
+    public void setHttpVers(String httpVers) {
+        this.httpVers = httpVers;
+    }
+
+    public HttpRequest(String method, String path, Map<String, String> headers, String body, String httpVers) {
         this.method = method;
         this.path = path;
         this.headers = headers;
         this.body = body;
+        this.httpVers = httpVers;
     }
 
     public String getMethod() {

@@ -1,10 +1,14 @@
 package ru.geekbrains;
 
+import ru.geekbrains.domain.HttpRequest;
+import ru.geekbrains.domain.HttpResponse;
 import ru.geekbrains.service.FileService;
 import ru.geekbrains.service.SocketService;
 
 import java.io.IOException;
 import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RequestHandler implements Runnable {
 
@@ -20,24 +24,32 @@ public class RequestHandler implements Runnable {
     @Override
     public void run() {
         Deque<String> rawRequest = socketService.readRequest();
-        String firstLine = rawRequest.pollFirst();
-        String[] parts = firstLine.split(" ");
 
-        if (!fileService.exists(parts[1])) {
-            String rawResponse =
-                    "HTTP/1.1 404 NOT_FOUND\n" +
-                    "Content-Type: text/html; charset=utf-8\n" +
-                    "\n" +
-                    "<h1>Файл не найден!</h1>";
-            socketService.writeResponse(rawResponse);
+        HttpRequest httpRequest = new RequestParser().parse(rawRequest);
+
+
+        if (!fileService.exists(httpRequest.getPath())) {
+            HttpResponse httpResponse = new HttpResponse();
+            httpResponse.setHttpVers(httpRequest.getHttpVers());
+            httpResponse.setStatusCode(" 404 NOT_FOUND");
+            Map<String, String> mapResp = new HashMap<>();
+            mapResp.put("Content-Type:", "text/html; charset=utf-8");
+            httpResponse.setHeaders(mapResp);
+            httpResponse.setBody("Файл не найден!");
+            socketService.writeResponse(new ResponseSerializer().serialize(httpResponse));
             return;
         }
 
-        String rawResponse = "HTTP/1.1 200 OK\n" +
-                "Content-Type: text/html; charset=utf-8\n" +
-                "\n" +
-                fileService.readFile(parts[1]);
-        socketService.writeResponse(rawResponse);
+        HttpResponse httpResponse = new HttpResponse();
+        httpResponse.setHttpVers(httpRequest.getHttpVers());
+        httpResponse.setStatusCode(" 200 OK");
+        Map<String, String> mapResp = new HashMap<>();
+        mapResp.put("Content-Type:", "text/html; charset=utf-8");
+        httpResponse.setHeaders(mapResp);
+        httpResponse.setBody(fileService.readFile(httpRequest.getPath()));
+        ResponseSerializer responseSerializer = new ResponseSerializer();
+        System.out.println(responseSerializer.serialize(httpResponse)); // test
+        socketService.writeResponse(responseSerializer.serialize(httpResponse));
 
         try {
             socketService.close();
