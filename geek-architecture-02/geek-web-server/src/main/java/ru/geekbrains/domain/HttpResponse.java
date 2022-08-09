@@ -4,20 +4,30 @@ import java.util.Map;
 
 public class HttpResponse {
 
-    private int statusCode;
+    private String statusCode;
 
     private Map<String, String> headers;
 
     private String body;
 
+    private String httpVers;
+
+    public String getHttpVers() {
+        return httpVers;
+    }
+
+    public void setHttpVers(String httpVers) {
+        this.httpVers = httpVers;
+    }
+
     public HttpResponse() {
     }
 
-    public int getStatusCode() {
+    public String getStatusCode() {
         return statusCode;
     }
 
-    public void setStatusCode(int statusCode) {
+    public void setStatusCode(String statusCode) {
         this.statusCode = statusCode;
     }
 
