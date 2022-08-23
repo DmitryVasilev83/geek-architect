@@ -1,6 +1,9 @@
 package ru.geekbrains;
 
 import ru.geekbrains.config.*;
+import ru.geekbrains.patterns.adapter.Hunter;
+import ru.geekbrains.patterns.adapter.WildDog;
+import ru.geekbrains.patterns.adapter.WildDogAdapter;
 import ru.geekbrains.service.FileService;
 import ru.geekbrains.service.SocketService;
 
@@ -11,6 +14,7 @@ import java.net.Socket;
 public class WebServer {
 
     public static void main(String[] args) {
+
         ServerConfig config = ServerConfigFactory.create(args);
         try (ServerSocket serverSocket = new ServerSocket(config.getPort())) {
             System.out.println("Server started!");
