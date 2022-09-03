@@ -1,19 +1,18 @@
 package ru.geekbrains.handler;
 
 import ru.geekbrains.ResponseSerializer;
-import ru.geekbrains.config.ServerConfig;
 import ru.geekbrains.domain.HttpRequest;
 import ru.geekbrains.domain.HttpResponse;
 import ru.geekbrains.service.FileService;
 import ru.geekbrains.service.SocketService;
 
-@Handler(method = "GET", order = 0)
+@Handler(order = 0)
 class GetMethodHandler extends MethodHandlerImpl {
 
     private final FileService fileService;
 
-    public GetMethodHandler(MethodHandlerImpl next, SocketService socketService, ResponseSerializer responseSerializer, ServerConfig config, FileService fileService) {
-        super("GET", next, socketService, responseSerializer, config);
+    public GetMethodHandler(MethodHandler next, SocketService socketService, ResponseSerializer responseSerializer, FileService fileService) {
+        super("GET", next, socketService, responseSerializer);
         this.fileService = fileService;
     }
 
