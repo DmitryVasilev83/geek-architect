@@ -1,5 +1,6 @@
 package ru.geekbrains.orm;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,5 +32,17 @@ public class UnitOfWork {
         // begin transaction
         // do all actions
         // commit transaction
+       userMapper.beginTransaction();
+        for (User u: newUsers) {
+            userMapper.insert(u);
+        }
+        for (User u: updateUsers) {
+            userMapper.update(u);
+        }
+        for (User u: deleteUsers) {
+            userMapper.insert(u);
+        }
+        userMapper.commitTransaction();
     }
+
 }

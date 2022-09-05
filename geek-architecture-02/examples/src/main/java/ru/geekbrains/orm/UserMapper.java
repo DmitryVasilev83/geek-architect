@@ -1,9 +1,6 @@
 package ru.geekbrains.orm;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -53,6 +50,20 @@ public class UserMapper {
         oldUser.setPassword(user.getPassword());
         identityMap.put(oldUser.getId(), oldUser);
         // TODO
+        // DZ 6
+        try {
+            PreparedStatement updateUser = conn.prepareStatement(
+                    "UPDATE users SET username = ?, password = ? WHERE id = ?");
+            updateUser.setString(1, user.getLogin());
+            updateUser.setString(2, user.getPassword());
+            updateUser.setString(3, user.getId().toString());
+            updateUser.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+        identityMap.put(user.getId(), user);
+
     }
 
     public User insert(User user) {
@@ -61,10 +72,60 @@ public class UserMapper {
         }
         // TODO
         //user.setId(...);
-        return null;
+
+        // DZ  7
+        try {
+            PreparedStatement insertUser = conn.prepareStatement("INSERT INTO users (username, password) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
+            insertUser.setString(1, user.getLogin());
+            insertUser.setString(2, user.getPassword());
+            insertUser.executeUpdate();
+            ResultSet rs = insertUser.getGeneratedKeys();
+            Long userId = null;
+            if (rs.next()) {
+                userId = rs.getLong(1);
+
+            }
+            user.setId(userId);
+            identityMap.put(user.getId(), user);
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+
+        }
+        return user;
     }
 
     public void delete(User user) {
+        if (user.getId() == null) {
+            throw new IllegalArgumentException("No id in entity to update");
+        }
+        try {
+            PreparedStatement deleteUser = conn.prepareStatement(
+                    "DELETE FROM users WHERE id = ?");
+            deleteUser.setString(1, user.getId().toString());
+            deleteUser.executeUpdate();
+            if (identityMap.containsKey(user.getId())){
+                identityMap.remove(user.getId(), user);
+            }
 
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+
+    }
+
+    public void beginTransaction(){
+        try {
+            conn.setAutoCommit(false);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void commitTransaction(){
+        try {
+            conn.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
